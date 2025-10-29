@@ -1,0 +1,120 @@
+[
+  {
+    "id": "S101",
+    "name": "Riya Sharma",
+    "email": "riya@student.com",
+    "password": "riya123",
+    "assignments": [
+      { "assignmentId": "A1", "title": "React Basics", "status": "completed" },
+      {
+        "assignmentId": "A3",
+        "title": "Node Fundamentals",
+        "status": "pending"
+      }
+    ]
+  },
+  {
+    "id": "S102",
+    "name": "Aarav Patel",
+    "email": "aarav@student.com",
+    "password": "aarav123",
+    "assignments": [
+      { "assignmentId": "A2", "title": "UI Design", "status": "completed" },
+      { "assignmentId": "A4", "title": "APIs and Fetch", "status": "pending" }
+    ]
+  },
+  {
+    "id": "S103",
+    "name": "Neha Verma",
+    "email": "neha@student.com",
+    "password": "neha123",
+    "assignments": [
+      { "assignmentId": "A1", "title": "React Basics", "status": "pending" },
+      { "assignmentId": "A2", "title": "UI Design", "status": "completed" }
+    ]
+  },
+  {
+    "id": "S104",
+    "name": "Arjun Mehta",
+    "email": "arjun@student.com",
+    "password": "arjun123",
+    "assignments": [
+      {
+        "assignmentId": "A3",
+        "title": "Node Fundamentals",
+        "status": "pending"
+      },
+      { "assignmentId": "A4", "title": "APIs and Fetch", "status": "completed" }
+    ]
+  },
+  {
+    "id": "S105",
+    "name": "Isha Singh",
+    "email": "isha@student.com",
+    "password": "isha123",
+    "assignments": [
+      { "assignmentId": "A2", "title": "UI Design", "status": "pending" },
+      {
+        "assignmentId": "A3",
+        "title": "Node Fundamentals",
+        "status": "completed"
+      }
+    ]
+  },
+  {
+    "id": "S106",
+    "name": "Kunal Joshi",
+    "email": "kunal@student.com",
+    "password": "kunal123",
+    "assignments": [
+      { "assignmentId": "A1", "title": "React Basics", "status": "pending" },
+      { "assignmentId": "A4", "title": "APIs and Fetch", "status": "completed" }
+    ]
+  },
+  {
+    "id": "S107",
+    "name": "Priya Kapoor",
+    "email": "priya@student.com",
+    "password": "priya123",
+    "assignments": [
+      {
+        "assignmentId": "A3",
+        "title": "Node Fundamentals",
+        "status": "completed"
+      },
+      { "assignmentId": "A4", "title": "APIs and Fetch", "status": "pending" }
+    ]
+  },
+  {
+    "id": "S108",
+    "name": "Rohit Nair",
+    "email": "rohit@student.com",
+    "password": "rohit123",
+    "assignments": [
+      { "assignmentId": "A1", "title": "React Basics", "status": "completed" }
+    ]
+  },
+  {
+    "id": "S109",
+    "name": "Sneha Das",
+    "email": "sneha@student.com",
+    "password": "sneha123",
+    "assignments": [
+      { "assignmentId": "A2", "title": "UI Design", "status": "pending" }
+    ]
+  },
+  {
+    "id": "S110",
+    "name": "Dev Patel",
+    "email": "dev@student.com",
+    "password": "dev123",
+    "assignments": [
+      { "assignmentId": "A1", "title": "React Basics", "status": "completed" },
+      {
+        "assignmentId": "A3",
+        "title": "Node Fundamentals",
+        "status": "completed"
+      }
+    ]
+  }
+]

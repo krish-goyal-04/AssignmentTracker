@@ -1,0 +1,50 @@
+[
+  {
+    "id": "P201",
+    "name": "Prof. Meena Gupta",
+    "email": "meena@joineazy.com",
+    "password": "meena123",
+    "assignmentsGiven": [
+      {
+        "assignmentId": "A1",
+        "title": "React Basics",
+        "due": "2025-11-02",
+        "studentsAssigned": ["S101", "S103", "S106", "S108", "S110"]
+      }
+    ]
+  },
+  {
+    "id": "P202",
+    "name": "Prof. Raj Malhotra",
+    "email": "raj@joineazy.com",
+    "password": "raj123",
+    "assignmentsGiven": [
+      {
+        "assignmentId": "A2",
+        "title": "UI Design",
+        "due": "2025-11-03",
+        "studentsAssigned": ["S102", "S103", "S105", "S109"]
+      },
+      {
+        "assignmentId": "A4",
+        "title": "APIs and Fetch",
+        "due": "2025-11-06",
+        "studentsAssigned": ["S102", "S104", "S107"]
+      }
+    ]
+  },
+  {
+    "id": "P203",
+    "name": "Prof. Kavita Iyer",
+    "email": "kavita@joineazy.com",
+    "password": "kavita123",
+    "assignmentsGiven": [
+      {
+        "assignmentId": "A3",
+        "title": "Node Fundamentals",
+        "due": "2025-11-04",
+        "studentsAssigned": ["S101", "S104", "S105", "S107", "S110"]
+      }
+    ]
+  }
+]
