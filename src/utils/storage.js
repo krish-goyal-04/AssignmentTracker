@@ -17,6 +17,7 @@ export const initializeData = () => {
   }
 };
 
+//These three functions are used to retreive data from local storage
 export const getStudents = () => {
   JSON.parse(localStorage.getItem("students")) || [];
 };
@@ -26,4 +27,8 @@ export const getProfessors = () => {
 };
 export const getAssignments = () => {
   JSON.parse(localStorage.getItem("assignments")) || [];
+};
+
+export const saveAssignments = (data) => {
+  localStorage.setItem("assignments", JSON.stringify(data));
 };
