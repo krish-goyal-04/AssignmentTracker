@@ -1,17 +1,23 @@
-import React, { createContext, useContext, useEffect } from "react";
-import { initializeData } from "../src/utils/storage";
+import React from "react";
 import Login from "./pages/Login";
 import { AppProvider } from "./context/AppContext";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import StudentDashboard from "./pages/StudentDashboard";
+import ProfessorDashboard from "./pages/ProfessorDashboard";
+
 const App = ({ children }) => {
-  //One time inital feeding data into local storage
-  useEffect(() => {
-    initializeData();
-  }, []);
   return (
     <AppProvider value={children}>
-      <div className="text-4xl">
-        <Login />
-      </div>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/student/:studentId" element={<StudentDashboard />} />
+          <Route
+            path="/professor/professorId"
+            element={<ProfessorDashboard />}
+          />
+        </Routes>
+      </BrowserRouter>
     </AppProvider>
   );
 };

@@ -5,8 +5,13 @@ import assignments from "../data/assignments.json";
 export const initializeData = () => {
   // Initialization  for local storage
   if (!localStorage.getItem("assignments")) {
+    console.log("Initializing assignments with:", assignments);
     localStorage.setItem("assignments", JSON.stringify(assignments));
   }
+  console.log(
+    "After init, assignments in storage:",
+    localStorage.getItem("assignments")
+  );
 
   if (!localStorage.getItem("students")) {
     localStorage.setItem("students", JSON.stringify(students));
@@ -19,14 +24,14 @@ export const initializeData = () => {
 
 //These three functions are used to retreive data from local storage
 export const getStudents = () => {
-  JSON.parse(localStorage.getItem("students")) || [];
+  return JSON.parse(localStorage.getItem("students")) || [];
 };
 
 export const getProfessors = () => {
-  JSON.parse(localStorage.getItem(professors)) || [];
+  return JSON.parse(localStorage.getItem("professors")) || [];
 };
 export const getAssignments = () => {
-  JSON.parse(localStorage.getItem("assignments")) || [];
+  return JSON.parse(localStorage.getItem("assignments")) || [];
 };
 
 export const saveAssignments = (data) => {

@@ -9,8 +9,8 @@ export const AppProvider = ({ children }) => {
   const [user, setUser] = useState(
     JSON.parse(localStorage.getItem("loggedInUser")) || null
   );
-
-  const [assignments, setAssignments] = useState(getAssignments());
+  const assignmentsData = getAssignments();
+  const [assignments, setAssignments] = useState(assignmentsData);
 
   const [role, setRole] = useState(user?.role || null);
 

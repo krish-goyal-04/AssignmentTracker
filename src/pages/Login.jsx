@@ -14,7 +14,7 @@ const Login = () => {
   const { loginUser } = useContext(AppContext);
   const [error, setError] = useState(null);
 
-  //const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -31,7 +31,7 @@ const Login = () => {
     }
     const data = { id: userDetails?.id, email, role };
     loginUser(data);
-    //navigate(`/${role}/${userDetails.id}`);
+    navigate(`/${role}/${userDetails.id}`);
   };
 
   return (
