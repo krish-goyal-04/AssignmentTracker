@@ -1,17 +1,37 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getProfessors, getStudents } from "../utils/storage";
+import { AppContext } from "../context/AppContext";
+import { useNavigate } from "react-router-dom";
 //used shadcn card and button componenet along with usestate to manage state
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("student");
+  const { loginUser } = useContext(AppContext);
+  const [error, setError] = useState(null);
+
+  //const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(email, password, role);
+    const list = role === "student" ? getStudents() : getProfessors();
+    const userDetails = list.find(
+      (u) => u.email === email && u.password === password
+    );
+
+    if (!userDetails) {
+      setEmail("");
+      setPassword("");
+      return alert("Invalid Credentials");
+    }
+    const data = { id: userDetails?.id, email, role };
+    loginUser(data);
+    //navigate(`/${role}/${userDetails.id}`);
   };
 
   return (

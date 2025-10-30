@@ -5,7 +5,7 @@ import assignments from "../data/assignments.json";
 export const initializeData = () => {
   // Initialization  for local storage
   if (!localStorage.getItem("assignments")) {
-    localStorage.setItem("assignements", JSON.stringify(assignments));
+    localStorage.setItem("assignments", JSON.stringify(assignments));
   }
 
   if (!localStorage.getItem("students")) {
