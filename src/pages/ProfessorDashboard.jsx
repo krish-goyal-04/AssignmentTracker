@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+/*import React, { useContext, useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
@@ -312,7 +312,7 @@ const ProfessorDashboard = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Header */}
+      {/* Header }
       <AssignmentHeader
         q={q}
         setQ={setQ}
@@ -323,14 +323,14 @@ const ProfessorDashboard = () => {
         openCreate={openCreate}
       />
 
-      {/* Top stats */}
+      {/* Top stats }
       <AssignmentStats
         assignmentsCount={stats.assignmentsCount}
         totalStudents={stats.totalStudents}
         completionRate={stats.completionRate}
       />
 
-      {/* Assignments list */}
+      {/* Assignments list }
       <div className="grid gap-6">
         {visibleAssignments.length === 0 ? (
           <Card className="p-8 text-center">
@@ -363,7 +363,7 @@ const ProfessorDashboard = () => {
         )}
       </div>
 
-      {/* Modal: Create/Edit assignment */}
+      {/* Modal: Create/Edit assignment }
       <AnimatePresence>
         {modalOpen && (
           <AssignmentModal
@@ -378,7 +378,7 @@ const ProfessorDashboard = () => {
         )}
       </AnimatePresence>
 
-      {/* toast */}
+      {/* toast }
       {toast && (
         <div className="fixed right-4 bottom-6 z-50">
           <div className="rounded-md bg-slate-800 text-white px-4 py-2 shadow">
@@ -391,3 +391,290 @@ const ProfessorDashboard = () => {
 };
 
 export default ProfessorDashboard;
+*/
+
+//Instead of professor name professor email is saved as email
+
+import React, { useContext, useEffect, useState } from "react";
+import { AnimatePresence } from "framer-motion";
+import { Card } from "../components/ui/card";
+import { AppContext } from "../context/AppContext";
+import { getAssignments, saveAssignments } from "../utils/storage";
+import { useParams } from "react-router-dom";
+
+import AssignmentHeader from "../components/AssignmentHeader";
+import AssignmentStats from "../components/AssignmentStats";
+import AssignmentModal from "../components/AssignmentModal";
+import AssignmentCard from "../components/AssignmentCard";
+
+const emptyAssignment = {
+  assignmentId: "",
+  title: "",
+  description: "",
+  professorId: "",
+  professorName: "",
+  dueDate: "",
+  driveTemplateLink: "",
+  studentsAssigned: [],
+  submissions: [],
+};
+
+const safePercent = (done, total) =>
+  !total ? 0 : Math.round((done / total) * 100);
+
+const formatDate = (iso) => {
+  try {
+    return new Date(iso).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  } catch {
+    return iso;
+  }
+};
+
+export default function ProfessorDashboard() {
+  const {
+    assignments: ctxAssign,
+    setAssignments,
+    user,
+  } = useContext(AppContext);
+
+  const local = getAssignments() || [];
+  const [assignments, setLocalAssignments] = useState(ctxAssign ?? local);
+
+  const params = useParams();
+  const professorId = params.professorId?.toUpperCase();
+  const professorName = user?.name ?? user?.email ?? "";
+
+  const [q, setQ] = useState("");
+  const [filter, setFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("dueAsc");
+  const [active, setActive] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [form, setForm] = useState(emptyAssignment);
+  const [editing, setEditing] = useState(null);
+  const [toast, setToast] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (ctxAssign) setLocalAssignments(ctxAssign);
+  }, [ctxAssign]);
+
+  const persist = (list) => {
+    if (setAssignments) setAssignments(list);
+    else saveAssignments(list);
+    setLocalAssignments(list);
+  };
+
+  const notify = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(""), 2000);
+  };
+
+  const myAssignments = assignments.filter(
+    (a) => !a.professorId || a.professorId === professorId
+  );
+
+  const visibleAssignments = (() => {
+    let list = [...myAssignments];
+    const today = new Date();
+
+    if (q.trim()) {
+      const term = q.toLowerCase();
+      list = list.filter(
+        (a) =>
+          a.title.toLowerCase().includes(term) ||
+          a.description?.toLowerCase().includes(term) ||
+          (a.professorName || "").toLowerCase().includes(term)
+      );
+    }
+
+    if (filter === "dueSoon") {
+      list = list.filter((a) => {
+        const diff = (new Date(a.dueDate + "T23:59:59") - today) / 86400000;
+        return diff >= 0 && diff <= 7;
+      });
+    } else if (filter === "pastDue") {
+      list = list.filter((a) => new Date(a.dueDate) < today);
+    } else if (filter === "incomplete") {
+      list = list.filter((a) => {
+        const total = a.studentsAssigned?.length || 0;
+        const done =
+          a.submissions?.filter((s) => s.status === "completed").length || 0;
+        return done < total;
+      });
+    }
+
+    if (sortBy === "dueAsc")
+      list.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+    else if (sortBy === "dueDesc")
+      list.sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
+    else if (sortBy === "completionDesc")
+      list.sort((a, b) => {
+        const ra =
+          (a.submissions?.filter((s) => s.status === "completed").length || 0) /
+          (a.studentsAssigned?.length || 1);
+        const rb =
+          (b.submissions?.filter((s) => s.status === "completed").length || 0) /
+          (b.studentsAssigned?.length || 1);
+        return rb - ra;
+      });
+
+    return list;
+  })();
+
+  const stats = myAssignments.reduce(
+    (acc, a) => {
+      const total = a.studentsAssigned?.length || 0;
+      const done =
+        a.submissions?.filter((s) => s.status === "completed").length || 0;
+      return {
+        totalStudents: acc.totalStudents + total,
+        totalCompleted: acc.totalCompleted + done,
+        assignmentsCount: acc.assignmentsCount + 1,
+      };
+    },
+    { totalStudents: 0, totalCompleted: 0, assignmentsCount: 0 }
+  );
+
+  const openCreate = () => {
+    setForm({
+      ...emptyAssignment,
+      assignmentId: "A" + Date.now(),
+      professorId,
+      professorName,
+    });
+    setEditing(null);
+    setModalOpen(true);
+  };
+
+  const openEdit = (a) => {
+    setForm({ ...a });
+    setEditing(a.assignmentId);
+    setModalOpen(true);
+  };
+
+  const saveAssignment = (e) => {
+    e.preventDefault();
+    setSaving(true);
+
+    let list = [...assignments];
+
+    if (editing) {
+      list = list.map((a) => (a.assignmentId === editing ? form : a));
+    } else {
+      const submissions = (form.studentsAssigned || []).map((sid) => ({
+        studentId: sid,
+        status: "pending",
+        submittedOn: null,
+      }));
+      list.push({ ...form, submissions });
+    }
+
+    persist(list);
+    notify(editing ? "Assignment updated" : "Assignment created");
+    setSaving(false);
+    setModalOpen(false);
+  };
+
+  const deleteAssignment = (id) => {
+    if (!confirm("Delete assignment?")) return;
+    const list = assignments.filter((a) => a.assignmentId !== id);
+    persist(list);
+    notify("Assignment deleted");
+  };
+
+  const toggleStudentStatus = (aId, sId) => {
+    const next = assignments.map((a) => {
+      if (a.assignmentId !== aId) return a;
+      const subs = [...a.submissions];
+      const i = subs.findIndex((s) => s.studentId === sId);
+
+      if (i === -1) {
+        subs.push({
+          studentId: sId,
+          status: "completed",
+          submittedOn: new Date().toISOString().slice(0, 10),
+        });
+      } else {
+        const s = subs[i];
+        subs[i] = {
+          ...s,
+          status: s.status === "completed" ? "pending" : "completed",
+          submittedOn:
+            s.status === "completed"
+              ? null
+              : new Date().toISOString().slice(0, 10),
+        };
+      }
+
+      return { ...a, submissions: subs };
+    });
+
+    persist(next);
+    notify("Updated submission status");
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <AssignmentHeader
+        q={q}
+        setQ={setQ}
+        filter={filter}
+        setFilter={setFilter}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        openCreate={openCreate}
+      />
+
+      <AssignmentStats
+        assignmentsCount={stats.assignmentsCount}
+        totalStudents={stats.totalStudents}
+        completionRate={safePercent(stats.totalCompleted, stats.totalStudents)}
+      />
+
+      <div className="grid gap-6">
+        {visibleAssignments.length === 0 ? (
+          <Card className="p-8 text-center">No assignments found</Card>
+        ) : (
+          visibleAssignments.map((a) => (
+            <AssignmentCard
+              key={a.assignmentId}
+              assignment={a}
+              active={active === a.assignmentId}
+              onToggleDetails={() =>
+                setActive(active === a.assignmentId ? null : a.assignmentId)
+              }
+              onEdit={openEdit}
+              onDelete={deleteAssignment}
+              onToggleStatus={toggleStudentStatus}
+              formatDate={formatDate}
+            />
+          ))
+        )}
+      </div>
+
+      <AnimatePresence>
+        {modalOpen && (
+          <AssignmentModal
+            onClose={() => setModalOpen(false)}
+            onSave={saveAssignment}
+            form={form}
+            setForm={setForm}
+            editing={editing}
+            saving={saving}
+            isOpen={modalOpen}
+          />
+        )}
+      </AnimatePresence>
+
+      {toast && (
+        <div className="fixed right-4 bottom-6 z-50 bg-slate-800 text-white px-4 py-2 rounded-md shadow">
+          {toast}
+        </div>
+      )}
+    </div>
+  );
+}
