@@ -1,38 +1,16 @@
 import React, { useContext, useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input"; // optional — replace with <input> if not available
 import { AppContext } from "../context/AppContext";
 import { getAssignments, saveAssignments } from "../utils/storage";
-import { Progress } from "../components/ui/progress";
 import { PlusIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { useParams } from "react-router-dom";
 import AssignmentHeader from "../components/AssignmentHeader";
 import AssignmentStats from "../components/AssignmentStats";
 import AssignmentModal from "../components/AssignmentModal";
 import AssignmentStudentTable from "../components/AssignmentStudentTable";
-//once only one student is only given assignment by professor
-//on adding assignment, its not gettting immediately updated
-
-//colourfull progressbar
-/**
- * PROFESSOR DASHBOARD
- *
- * Features:
- * - Top-level stats (assignments given, avg completion)
- * - Assignment cards list + search/filter/sort
- * - Per-assignment expanded view showing rows for each student with status & small progress bar
- * - Create/Edit assignment modal (title, description, dueDate, driveLink, studentsAssigned)
- * - Mark student submission status inline, and persist
- * - Export submissions CSV
- *
- * NOTE: component tries to use context-provided `assignments` and mutator functions:
- *   - assignments (array)
- *   - setAssignments (optional) OR createAssignment/editAssignment/deleteAssignment/updateAssignment
- * If those aren't available in your AppContext, the component will fall back to reading/writing localStorage
- * using getAssignments/saveAssignments from ../utils/storage (this mimics your earlier code).
- */
+import AssignmentCard from "../components/AssignmentCard";
 
 const emptyAssignment = {
   assignmentId: "",
@@ -291,7 +269,7 @@ const ProfessorDashboard = () => {
 
   // mark submission status for a student (toggle)
   const toggleStudentStatus = (assignmentId, studentId) => {
-    const list = (assignments || []).map((a) => {
+    const newAssignments = (assignments || []).map((a) => {
       if (a.assignmentId !== assignmentId) return a;
       const submissions = a.submissions ? [...a.submissions] : [];
       const idx = submissions.findIndex((s) => s.studentId === studentId);
@@ -317,29 +295,19 @@ const ProfessorDashboard = () => {
       }
       return { ...a, submissions };
     });
-    persistAndToast(list, "Updated submission status");
-  };
 
-  // small helpers for form student list management
-  const addStudentToForm = (sid) => {
-    if (!sid) return;
-    if ((form.studentsAssigned || []).includes(sid)) return;
-    setForm((f) => ({
-      ...f,
-      studentsAssigned: [...(f.studentsAssigned || []), sid],
-      submissions: [
-        ...(f.submissions || []),
-        { studentId: sid, status: "pending", submittedOn: null },
-      ],
-    }));
-  };
-
-  const removeStudentFromForm = (sid) => {
-    setForm((f) => ({
-      ...f,
-      studentsAssigned: (f.studentsAssigned || []).filter((x) => x !== sid),
-      submissions: (f.submissions || []).filter((s) => s.studentId !== sid),
-    }));
+    // Update both context and local storage
+    setAssignmentsState(newAssignments);
+    if (
+      setExternalAssignments &&
+      typeof setExternalAssignments === "function"
+    ) {
+      setExternalAssignments(newAssignments);
+    } else {
+      saveAssignments(newAssignments);
+    }
+    setToast("Updated submission status");
+    setTimeout(() => setToast(null), 2000);
   };
 
   return (
@@ -375,126 +343,21 @@ const ProfessorDashboard = () => {
           </Card>
         ) : (
           visibleAssignments.map((a) => {
-            const total = a.studentsAssigned?.length || 0;
-            const completed =
-              a.submissions?.filter((s) => s.status === "completed")?.length ||
-              0;
-            const percentage = total
-              ? Math.round((completed / total) * 100)
-              : 0;
-            const isPastDue = new Date(a.dueDate + "T23:59:59") < new Date();
+            const isActive = active === a.assignmentId;
 
             return (
-              <motion.div
+              <AssignmentCard
                 key={a.assignmentId}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-lg shadow-sm overflow-hidden border"
-              >
-                <div className="p-4 md:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-3">
-                      <h3 className="text-lg font-semibold text-slate-800 truncate">
-                        {a.title}
-                      </h3>
-                      <div className="text-xs text-slate-500">
-                        Due:{" "}
-                        <span className="font-medium text-slate-700">
-                          {formatDate(a.dueDate)}
-                        </span>
-                      </div>
-                    </div>
-                    <p className="mt-2 text-sm text-slate-500 line-clamp-2">
-                      {a.description}
-                    </p>
-
-                    <div className="mt-3 flex items-center gap-3 text-xs text-slate-500">
-                      <div>
-                        Students:{" "}
-                        <span className="font-medium text-slate-700">
-                          {total}
-                        </span>
-                      </div>
-                      <div>
-                        Completed:{" "}
-                        <span className="font-medium text-slate-700">
-                          {completed}
-                        </span>
-                      </div>
-                      <div
-                        className={`px-2 py-0.5 rounded-md ${
-                          isPastDue
-                            ? "bg-red-100 text-red-800"
-                            : "bg-emerald-100 text-emerald-800"
-                        }`}
-                      >
-                        {isPastDue ? "Past due" : "Active"}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="hidden md:block w-40">
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className="h-2 rounded-full bg-green-600"
-                          style={{ width: `${percentage}%` }}
-                        />
-                      </div>
-                      <div className="text-xs text-slate-600 mt-1">
-                        {percentage}% completed
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Button
-                        className="text-sm px-3 py-2 bg-white border"
-                        onClick={() => {
-                          setActive(
-                            active === a.assignmentId ? null : a.assignmentId
-                          );
-                        }}
-                      >
-                        {active === a.assignmentId ? "Collapse" : "Details"}
-                      </Button>
-
-                      <Button
-                        className="text-sm px-3 py-2 bg-white border"
-                        onClick={() => openEdit(a)}
-                      >
-                        <PencilIcon className="w-4 h-4" />
-                      </Button>
-
-                      <Button
-                        className="text-sm px-3 py-2 bg-red-50 text-red-700 border"
-                        onClick={() => handleDeleteAssignment(a.assignmentId)}
-                      >
-                        <TrashIcon className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* expanded details: per-student table */}
-                <AnimatePresence>
-                  {active === a.assignmentId && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="p-4 border-t bg-slate-50"
-                    >
-                      <AssignmentStudentTable
-                        students={a.studentsAssigned}
-                        submissions={a.submissions}
-                        onToggleStatus={toggleStudentStatus}
-                        formatDate={formatDate}
-                        driveLink={a.driveTemplateLink}
-                      />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
+                assignment={a}
+                active={isActive}
+                onToggleDetails={(id) =>
+                  setActive((prev) => (prev === id ? null : id))
+                }
+                onEdit={openEdit}
+                onDelete={handleDeleteAssignment}
+                onToggleStatus={toggleStudentStatus}
+                formatDate={formatDate}
+              />
             );
           })
         )}

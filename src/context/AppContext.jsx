@@ -54,7 +54,15 @@ export const AppProvider = ({ children }) => {
 
   return (
     <AppContext.Provider
-      value={{ user, role, assignments, loginUser, logout, updateAssignment }}
+      value={{
+        user,
+        role,
+        assignments,
+        setAssignments, // Expose setAssignments to components
+        loginUser,
+        logout,
+        updateAssignment,
+      }}
     >
       {children}
     </AppContext.Provider>
