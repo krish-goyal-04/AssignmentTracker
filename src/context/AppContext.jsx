@@ -54,7 +54,7 @@ export const AppProvider = ({ children }) => {
 
   return (
     <AppContext.Provider
-      value={{ user, role, loginUser, logout, updateAssignment }}
+      value={{ user, role, assignments, loginUser, logout, updateAssignment }}
     >
       {children}
     </AppContext.Provider>
