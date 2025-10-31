@@ -115,16 +115,24 @@ const AssignmentModal = ({
                 <label className="block text-xs text-slate-600">
                   Students assigned (comma separated IDs)
                 </label>
-                <input
-                  value={(form.studentsAssigned || []).join(",")}
+                <textarea
+                  value={form.studentsAssignedInput || ""}
                   onChange={(e) => {
+                    setForm((f) => ({
+                      ...f,
+                      studentsAssignedInput: e.target.value, // keep raw input
+                    }));
+                  }}
+                  onBlur={(e) => {
                     const arr = e.target.value
-                      .split(",")
-                      .map((s) => s.trim())
+                      .split(/[,\s\n]/) // allow comma, space, newline
+                      .map((s) => s.trim().toUpperCase())
                       .filter(Boolean);
+
                     setForm((f) => ({
                       ...f,
                       studentsAssigned: arr,
+                      studentsAssignedInput: arr.join(", "), // normalized back
                       submissions: arr.map((sid) => ({
                         studentId: sid,
                         status:
@@ -136,7 +144,9 @@ const AssignmentModal = ({
                       })),
                     }));
                   }}
+                  placeholder="Enter student IDs (e.g., S101, S102, S103)"
                   className="w-full rounded-md border px-3 py-2 text-sm"
+                  rows={2}
                 />
               </div>
             </div>

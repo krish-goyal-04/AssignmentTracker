@@ -5,12 +5,17 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input"; // optional — replace with <input> if not available
 import { AppContext } from "../context/AppContext";
 import { getAssignments, saveAssignments } from "../utils/storage";
-
+import { Progress } from "../components/ui/progress";
 import { PlusIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { useParams } from "react-router-dom";
+import AssignmentHeader from "../components/AssignmentHeader";
+import AssignmentStats from "../components/AssignmentStats";
+import AssignmentModal from "../components/AssignmentModal";
+import AssignmentStudentTable from "../components/AssignmentStudentTable";
 //once only one student is only given assignment by professor
 //on adding assignment, its not gettting immediately updated
-//Submitted assignments on marking pending arenot getting updated with refresh
+
+//colourfull progressbar
 /**
  * PROFESSOR DASHBOARD
  *
@@ -67,7 +72,13 @@ const ProfessorDashboard = () => {
   const [assignmentsState, setAssignmentsState] = useState(
     externalAssignments || []
   );
-  const assignments = context.assignments ?? assignmentsState;
+  // If the context provides a setter-like function, prefer context.assignments so
+  // updates go through the context. Otherwise fall back to the local state so
+  // newly created assignments (saved to localStorage) appear immediately.
+  const assignments =
+    setExternalAssignments && typeof setExternalAssignments === "function"
+      ? context.assignments ?? assignmentsState
+      : assignmentsState;
 
   // UI state
   const [q, setQ] = useState("");
@@ -309,43 +320,6 @@ const ProfessorDashboard = () => {
     persistAndToast(list, "Updated submission status");
   };
 
-  // CSV export
-  const exportCSV = (assignment) => {
-    const headers = [
-      "assignmentId",
-      "assignmentTitle",
-      "studentId",
-      "studentStatus",
-      "submittedOn",
-    ];
-    const rows = (assignment.studentsAssigned || []).map((sid) => {
-      const s = (assignment.submissions || []).find(
-        (x) => x.studentId === sid
-      ) || { status: "pending", submittedOn: "" };
-      return [
-        assignment.assignmentId,
-        assignment.title,
-        sid,
-        s.status,
-        s.submittedOn || "",
-      ];
-    });
-
-    const csv = [headers, ...rows]
-      .map((r) => r.map((c) => `"${String(c ?? "")}"`).join(","))
-      .join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${assignment.assignmentId}-${assignment.title.replace(
-      /\s+/g,
-      "_"
-    )}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   // small helpers for form student list management
   const addStudentToForm = (sid) => {
     if (!sid) return;
@@ -371,93 +345,22 @@ const ProfessorDashboard = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-slate-800">
-            Professor Dashboard
-          </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Manage assignments, review submissions and export reports.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-2 bg-white border rounded-md px-3 py-2">
-            <input
-              placeholder="Search assignments..."
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              className="text-sm outline-none w-64"
-            />
-            <button
-              className="text-slate-500"
-              onClick={() => setQ("")}
-              aria-label="clear search"
-            >
-              ✕
-            </button>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <select
-              className="text-sm rounded-md border px-2 py-2"
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-            >
-              <option value="all">All</option>
-              <option value="dueSoon">Due soon</option>
-              <option value="pastDue">Past due</option>
-              <option value="incomplete">Incomplete</option>
-            </select>
-
-            <select
-              className="text-sm rounded-md border px-2 py-2"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            >
-              <option value="dueAsc">Due date ↑</option>
-              <option value="dueDesc">Due date ↓</option>
-              <option value="completionDesc">Completion % ↓</option>
-            </select>
-
-            <Button className="flex items-center gap-2" onClick={openCreate}>
-              <PlusIcon className="w-4 h-4" /> New
-            </Button>
-          </div>
-        </div>
-      </div>
+      <AssignmentHeader
+        q={q}
+        setQ={setQ}
+        filter={filter}
+        setFilter={setFilter}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        openCreate={openCreate}
+      />
 
       {/* Top stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <Card className="p-4">
-          <div className="text-sm text-slate-500">Assignments given</div>
-          <div className="mt-2 text-2xl font-semibold text-slate-800">
-            {stats.assignmentsCount}
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="text-sm text-slate-500">
-            Students assigned (total)
-          </div>
-          <div className="mt-2 text-2xl font-semibold text-slate-800">
-            {stats.totalStudents}
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="text-sm text-slate-500">Overall completion rate</div>
-          <div className="mt-2 flex items-center gap-3">
-            <div className="w-full bg-gray-200 rounded-full h-3">
-              <div
-                className="h-3 rounded-full bg-green-600 transition-all"
-                style={{ width: `${stats.completionRate}%` }}
-              />
-            </div>
-            <div className="text-sm font-semibold">{stats.completionRate}%</div>
-          </div>
-        </Card>
-      </div>
+      <AssignmentStats
+        assignmentsCount={stats.assignmentsCount}
+        totalStudents={stats.totalStudents}
+        completionRate={stats.completionRate}
+      />
 
       {/* Assignments list */}
       <div className="grid gap-6">
@@ -555,14 +458,6 @@ const ProfessorDashboard = () => {
                         {active === a.assignmentId ? "Collapse" : "Details"}
                       </Button>
 
-                      {/*<Button
-                        className="text-sm px-3 py-2 bg-white border"
-                        onClick={() => exportCSV(a)}
-                      >
-                        <DownloadIcon className="w-4 h-4 inline-block mr-1" />{" "}
-                        CSV
-                      </Button>*/}
-
                       <Button
                         className="text-sm px-3 py-2 bg-white border"
                         onClick={() => openEdit(a)}
@@ -589,77 +484,13 @@ const ProfessorDashboard = () => {
                       exit={{ opacity: 0 }}
                       className="p-4 border-t bg-slate-50"
                     >
-                      <div className="overflow-auto">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="text-left text-xs text-slate-500">
-                              <th className="pb-2">Student ID</th>
-                              <th className="pb-2">Status</th>
-                              <th className="pb-2">Submitted On</th>
-                              <th className="pb-2">Actions</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {(a.studentsAssigned || []).map((sid) => {
-                              const sObj = (a.submissions || []).find(
-                                (s) => s.studentId === sid
-                              ) || { status: "pending", submittedOn: null };
-                              const isDone = sObj.status === "completed";
-                              return (
-                                <tr key={sid} className="border-t">
-                                  <td className="py-3">{sid}</td>
-                                  <td className="py-3">
-                                    <div
-                                      className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium ${
-                                        isDone
-                                          ? "bg-green-100 text-green-800"
-                                          : "bg-amber-100 text-amber-800"
-                                      }`}
-                                    >
-                                      {isDone ? "Submitted" : "Pending"}
-                                    </div>
-                                  </td>
-                                  <td className="py-3">
-                                    {sObj.submittedOn
-                                      ? formatDate(sObj.submittedOn)
-                                      : "-"}
-                                  </td>
-                                  <td className="py-3">
-                                    <div className="flex items-center gap-2">
-                                      <button
-                                        className={`text-sm px-3 py-1 rounded-md ${
-                                          isDone
-                                            ? "bg-gray-100"
-                                            : "bg-green-600 text-white"
-                                        }`}
-                                        onClick={() =>
-                                          toggleStudentStatus(
-                                            a.assignmentId,
-                                            sid
-                                          )
-                                        }
-                                      >
-                                        {isDone
-                                          ? "Mark Pending"
-                                          : "Mark Submitted"}
-                                      </button>
-
-                                      <a
-                                        href={`${a.driveTemplateLink}`}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="text-sm px-3 py-1 rounded-md bg-white border"
-                                      >
-                                        Open Drive
-                                      </a>
-                                    </div>
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
+                      <AssignmentStudentTable
+                        students={a.studentsAssigned}
+                        submissions={a.submissions}
+                        onToggleStatus={toggleStudentStatus}
+                        formatDate={formatDate}
+                        driveLink={a.driveTemplateLink}
+                      />
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -672,153 +503,15 @@ const ProfessorDashboard = () => {
       {/* Modal: Create/Edit assignment */}
       <AnimatePresence>
         {modalOpen && (
-          <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <div
-              className="absolute inset-0 bg-black/40"
-              onClick={() => !saving && closeModal()}
-            />
-            <motion.div
-              initial={{ y: 12, scale: 0.98 }}
-              animate={{ y: 0, scale: 1 }}
-              exit={{ y: 12, scale: 0.98 }}
-              className="relative max-w-2xl w-full bg-white rounded-lg shadow-lg overflow-hidden"
-            >
-              <form onSubmit={handleSaveAssignment}>
-                <div className="p-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <h3 className="text-lg font-semibold">
-                        {editing ? "Edit Assignment" : "New Assignment"}
-                      </h3>
-                      <p className="text-sm text-slate-500 mt-1">
-                        {editing
-                          ? "Update assignment details"
-                          : "Create an assignment and assign students"}
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => closeModal()}
-                      className="text-slate-500"
-                    >
-                      ✕
-                    </button>
-                  </div>
-
-                  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs text-slate-600">
-                        Title
-                      </label>
-                      <input
-                        required
-                        value={form.title}
-                        onChange={(e) =>
-                          setForm((f) => ({ ...f, title: e.target.value }))
-                        }
-                        className="w-full rounded-md border px-3 py-2 text-sm"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs text-slate-600">
-                        Due date
-                      </label>
-                      <input
-                        required
-                        type="date"
-                        value={form.dueDate}
-                        onChange={(e) =>
-                          setForm((f) => ({ ...f, dueDate: e.target.value }))
-                        }
-                        className="w-full rounded-md border px-3 py-2 text-sm"
-                      />
-                    </div>
-
-                    <div className="md:col-span-2">
-                      <label className="block text-xs text-slate-600">
-                        Description
-                      </label>
-                      <textarea
-                        value={form.description}
-                        onChange={(e) =>
-                          setForm((f) => ({
-                            ...f,
-                            description: e.target.value,
-                          }))
-                        }
-                        className="w-full rounded-md border px-3 py-2 text-sm"
-                        rows={3}
-                      />
-                    </div>
-
-                    <div className="md:col-span-2">
-                      <label className="block text-xs text-slate-600">
-                        Drive template link
-                      </label>
-                      <input
-                        value={form.driveTemplateLink}
-                        onChange={(e) =>
-                          setForm((f) => ({
-                            ...f,
-                            driveTemplateLink: e.target.value,
-                          }))
-                        }
-                        className="w-full rounded-md border px-3 py-2 text-sm"
-                      />
-                    </div>
-
-                    <div className="md:col-span-2">
-                      <label className="block text-xs text-slate-600">
-                        Students assigned (comma separated IDs)
-                      </label>
-                      <input
-                        value={(form.studentsAssigned || []).join(",")}
-                        onChange={(e) => {
-                          const arr = e.target.value
-                            .split(",")
-                            .map((s) => s.trim())
-                            .filter(Boolean);
-                          setForm((f) => ({
-                            ...f,
-                            studentsAssigned: arr,
-                            submissions: arr.map((sid) => ({
-                              studentId: sid,
-                              status:
-                                f.submissions?.find((x) => x.studentId === sid)
-                                  ?.status || "pending",
-                              submittedOn:
-                                f.submissions?.find((x) => x.studentId === sid)
-                                  ?.submittedOn || null,
-                            })),
-                          }));
-                        }}
-                        className="w-full rounded-md border px-3 py-2 text-sm"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-end gap-3 px-6 py-4 bg-slate-50 border-t">
-                  <Button
-                    type="button"
-                    className="bg-white border"
-                    onClick={() => closeModal()}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" className="bg-blue-600 text-white">
-                    {saving ? "Saving..." : editing ? "Update" : "Create"}
-                  </Button>
-                </div>
-              </form>
-            </motion.div>
-          </motion.div>
+          <AssignmentModal
+            onClose={closeModal}
+            onSave={handleSaveAssignment}
+            setForm={setForm}
+            form={form}
+            editing={editing}
+            saving={saving}
+            isOpen={modalOpen}
+          />
         )}
       </AnimatePresence>
 

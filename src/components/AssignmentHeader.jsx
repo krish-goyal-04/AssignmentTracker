@@ -9,7 +9,7 @@ const AssignmentHeader = ({
   setFilter,
   sortBy,
   setSortBy,
-  onCreateNew,
+  openCreate,
 }) => {
   return (
     <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
@@ -61,7 +61,7 @@ const AssignmentHeader = ({
             <option value="completionDesc">Completion % ↓</option>
           </select>
 
-          <Button className="flex items-center gap-2" onClick={onCreateNew}>
+          <Button className="flex items-center gap-2" onClick={openCreate}>
             <PlusIcon className="w-4 h-4" /> New
           </Button>
         </div>

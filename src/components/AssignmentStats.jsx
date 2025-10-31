@@ -1,5 +1,6 @@
 import React from "react";
 import { Card } from "./ui/card";
+import { Progress } from "../components/ui/progress";
 
 const AssignmentStats = ({
   assignmentsCount,
@@ -25,12 +26,7 @@ const AssignmentStats = ({
       <Card className="p-4">
         <div className="text-sm text-slate-500">Overall completion rate</div>
         <div className="mt-2 flex items-center gap-3">
-          <div className="w-full bg-gray-200 rounded-full h-3">
-            <div
-              className="h-3 rounded-full bg-green-600 transition-all"
-              style={{ width: `${completionRate}%` }}
-            />
-          </div>
+          <Progress value={completionRate} />
           <div className="text-sm font-semibold">{completionRate}%</div>
         </div>
       </Card>
