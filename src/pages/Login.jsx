@@ -40,7 +40,7 @@ const Login = () => {
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="relative z-10 w-full max-w-md mx-4"
         >
-          <Card className="bg-white shadow-xl border border-slate-200 overflow-hidden">
+          <Card className="bg-white shadow-xl border border-slate-200 overflow-hidden h-full">
             {/* Header with subtle brand bar */}
             <div className="bg-linear-to-r from-slate-800 to-slate-600 p-8 text-center">
               <Motion.div

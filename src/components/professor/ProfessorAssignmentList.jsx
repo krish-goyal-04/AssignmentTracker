@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { motion as Motion, AnimatePresence } from "framer-motion";
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";
@@ -27,6 +27,17 @@ export const ProfessorAssignmentList = ({
   onToggleStatus,
   formatDate,
 }) => {
+  // If the active assignment is deleted, close details view
+  useEffect(() => {
+    if (
+      activeId &&
+      !assignments.some((a) => a.assignmentId === activeId) &&
+      onToggleDetails
+    ) {
+      onToggleDetails(null);
+    }
+  }, [assignments, activeId, onToggleDetails]);
+
   // Show empty state if no assignments exist
   if (!assignments || assignments.length === 0) {
     return (
