@@ -9,7 +9,7 @@ import ProfessorAssignmentHeader from "../components/professor/ProfessorAssignme
 import { ProfessorAssignmentList } from "../components/professor";
 import AssignmentModal from "../components/professor/AssignmentModal";
 import { useToast } from "../hooks/useToast";
-import { Button } from "../components/ui/button";
+import AppHeader from "../components/shared/AppHeader";
 import {
   useAssignmentForm,
   useAssignmentFilters,
@@ -256,43 +256,14 @@ export default function ProfessorDashboard() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
-      {/* Top Navigation Bar */}
-      <Motion.nav
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="bg-white/80 backdrop-blur-lg border-b border-slate-200 sticky top-0 z-50 shadow-sm"
-      >
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg">
-              <span className="text-white font-bold text-lg">👨‍🏫</span>
-            </div>
-            <div>
-              <h1 className="text-xl font-bold bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Assignment Tracker
-              </h1>
-              <p className="text-xs text-slate-500">Professor Portal</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex flex-col items-end">
-              <span className="text-sm font-semibold text-slate-700">
-                {professorName}
-              </span>
-              <span className="text-xs text-slate-500">{professorId}</span>
-            </div>
-            <Button
-              variant="outline"
-              onClick={handleLogout}
-              className="flex items-center gap-2"
-            >
-              <span>🚪</span>
-              <span className="hidden sm:inline">Logout</span>
-            </Button>
-          </div>
-        </div>
-      </Motion.nav>
+      <AppHeader
+        title="Assignment Tracker"
+        subtitle="Professor Portal"
+        userName={professorName}
+        userId={professorId}
+        onLogout={handleLogout}
+        icon={null}
+      />
 
       {/* Main Content */}
       <Motion.div

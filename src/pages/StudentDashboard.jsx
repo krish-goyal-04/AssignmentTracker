@@ -2,7 +2,7 @@ import React from "react";
 import { motion as Motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAssignments } from "../hooks/useAssignments";
-import { StudentProfileHeader } from "../components/student";
+import AppHeader from "../components/shared/AppHeader";
 import { StudentCourseProgress } from "../components/student/StudentCourseProgress";
 import { StudentAssignmentHeader } from "../components/student/StudentAssignmentHeader";
 import { StudentAssignmentList } from "../components/student/StudentAssignmentList";
@@ -45,43 +45,14 @@ const StudentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-indigo-50 via-white to-purple-50">
-      {/* Top Navigation Bar */}
-      <Motion.nav
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="bg-white/80 backdrop-blur-lg border-b border-slate-200 sticky top-0 z-50 shadow-sm"
-      >
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-linear-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
-              <span className="text-white font-bold text-lg">📚</span>
-            </div>
-            <div>
-              <h1 className="text-xl font-bold bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                Assignment Tracker
-              </h1>
-              <p className="text-xs text-slate-500">Student Portal</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex flex-col items-end">
-              <span className="text-sm font-semibold text-slate-700">
-                {currentStudent?.name || "Student"}
-              </span>
-              <span className="text-xs text-slate-500">{studentId}</span>
-            </div>
-            <Button
-              variant="outline"
-              onClick={handleLogout}
-              className="flex items-center gap-2"
-            >
-              <span>🚪</span>
-              <span className="hidden sm:inline">Logout</span>
-            </Button>
-          </div>
-        </div>
-      </Motion.nav>
+      <AppHeader
+        title="Assignment Tracker"
+        subtitle="Student Portal"
+        userName={currentStudent?.name || "Student"}
+        userId={studentId}
+        onLogout={handleLogout}
+        icon={null}
+      />
 
       {/* Main Content */}
       <Motion.div

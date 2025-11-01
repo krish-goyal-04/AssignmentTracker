@@ -1,10 +1,11 @@
 import React from "react";
 import { motion as Motion } from "framer-motion";
-import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { SubmissionModal } from "../shared/SubmissionModal";
 import { SubmissionSuccessToast } from "../shared/SubmissionSuccessToast";
 import { useAssignmentSubmission } from "../../hooks/useAssignmentUI";
+import { StatusPill } from "../shared/StatusPill";
+import { LoadingButton } from "../shared/LoadingButton";
 
 /**
  * Individual assignment card for students
@@ -57,38 +58,27 @@ export const StudentAssignmentCard = ({
         transition={{ duration: 0.2 }}
       >
         <Card className="mb-4 last:mb-0 shadow-sm hover:shadow-md transition-shadow">
-          <div className="p-6">
-            {/* Header: Title + Action button */}
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1">
-                {/* Assignment title */}
-                <h3 className="text-lg font-bold text-slate-800">
+          <div className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg font-bold text-slate-800 mb-2 sm:mb-3">
                   {assignment.title}
                 </h3>
 
-                {/* Status badges: Submitted overrides Due/Past due */}
-                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-                  {isSubmitted ? (
-                    <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 font-medium">
-                      ✓ Submitted
-                      {submittedDate &&
-                        ` on ${new Date(submittedDate).toLocaleDateString(
-                          "en-GB",
-                          { day: "numeric", month: "short" }
-                        )}`}
-                    </span>
-                  ) : isPastDue ? (
-                    <span className="px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 font-medium">
-                      ⚠️ Past due
-                    </span>
-                  ) : (
-                    <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-medium">
-                      ⏰ Due in {Math.max(daysRemaining, 0)} day
-                      {Math.max(daysRemaining, 0) !== 1 ? "s" : ""}
-                    </span>
-                  )}
-                  <span className="text-slate-400">•</span>
-                  <span className="text-slate-600">
+                <div className="flex flex-wrap items-center gap-2 mb-4">
+                  <StatusPill
+                    status={
+                      isSubmitted
+                        ? "submitted"
+                        : isPastDue
+                        ? "past-due"
+                        : "pending"
+                    }
+                    daysRemaining={daysRemaining}
+                    submittedDate={submittedDate}
+                  />
+                  <span className="text-slate-400 text-xs">•</span>
+                  <span className="text-xs text-slate-600">
                     {new Date(assignment.dueDate).toLocaleDateString("en-GB", {
                       day: "numeric",
                       month: "short",
@@ -98,25 +88,25 @@ export const StudentAssignmentCard = ({
                 </div>
               </div>
 
-              {/* Submit button (hidden when already submitted) */}
-              <div className="flex items-center gap-2">
-                {!isSubmitted && (
-                  <Button
+              {!isSubmitted && (
+                <div className="w-full sm:w-auto">
+                  <LoadingButton
+                    loading={isSubmitting}
                     onClick={() => setIsModalOpen(true)}
-                    className="bg-amber-500 text-white hover:bg-amber-600 shadow-sm"
+                    className="w-full sm:w-auto bg-amber-500 text-white hover:bg-amber-600 shadow-sm"
                   >
-                    ✓ Submit
-                  </Button>
-                )}
-              </div>
+                    Submit
+                  </LoadingButton>
+                </div>
+              )}
             </div>
 
-            {/* Assignment description */}
-            <div className="mt-4 text-sm text-slate-600 leading-relaxed">
-              <p>{assignment.description}</p>
-            </div>
+            {assignment.description && (
+              <p className="mt-3 text-sm text-slate-600 leading-relaxed">
+                {assignment.description}
+              </p>
+            )}
 
-            {/* Footer: Template link + Professor name */}
             <div className="mt-5 flex flex-wrap items-center gap-3 text-sm">
               <a
                 href={assignment.driveTemplateLink}
@@ -124,12 +114,10 @@ export const StudentAssignmentCard = ({
                 rel="noreferrer"
                 className="px-3 py-1.5 rounded-md border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-colors text-xs font-medium"
               >
-                📄 Open Template
+                Open Template
               </a>
               <span className="text-slate-400">•</span>
-              <span className="text-slate-500">
-                👤 {assignment.professorName}
-              </span>
+              <span className="text-slate-500">{assignment.professorName}</span>
             </div>
           </div>
         </Card>

@@ -47,24 +47,30 @@ export const ProfessorAssignmentList = ({
         const daysRemaining = Math.ceil(timeDifference / 86400000);
         const isPastDue = timeDifference < 0;
 
-        // Determine status pill color and text
-        let statusColor = "bg-emerald-100 text-emerald-700"; // Default: Active
-        let statusText = "Active";
-
-        if (isPastDue) {
-          statusColor = "bg-rose-100 text-rose-700";
-          statusText = "Past due";
-        } else if (daysRemaining <= 7) {
-          statusColor = "bg-amber-100 text-amber-800";
-          statusText = `Due in ${Math.max(daysRemaining, 0)}d`;
-        }
-
         // Calculate submission progress
         const submissionsArray = assignment.submissions || [];
         const completedSubmissions = submissionsArray.filter(
           (submission) => submission.status === "completed"
         ).length;
         const totalStudents = assignment.studentsAssigned?.length || 0;
+
+        // Determine status pill color and text (fixed order)
+        let statusColor = "bg-emerald-100 text-emerald-700"; // Default: Active
+        let statusText = "Active";
+
+        if (totalStudents === 0) {
+          statusColor = "bg-slate-200 text-slate-500";
+          statusText = "No students";
+        } else if (completedSubmissions === totalStudents) {
+          statusColor = "bg-green-100 text-green-700";
+          statusText = "Completed";
+        } else if (isPastDue) {
+          statusColor = "bg-rose-100 text-rose-700";
+          statusText = "Past due";
+        } else if (daysRemaining <= 7) {
+          statusColor = "bg-amber-100 text-amber-800";
+          statusText = `Due in ${Math.max(daysRemaining, 0)}d`;
+        }
 
         // Check if this assignment is expanded
         const isExpanded = activeId === assignment.assignmentId;

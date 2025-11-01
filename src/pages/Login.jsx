@@ -74,7 +74,7 @@ const Login = () => {
             {/* Form section */}
             <div className="p-8">
               <form className="space-y-5" onSubmit={handleSubmit}>
-                {/* Role selector with tabs */}
+                {/* Role selector with tabs (no icons) */}
                 <div className="flex gap-2 p-1 bg-slate-100 rounded-lg">
                   <button
                     type="button"
@@ -85,7 +85,7 @@ const Login = () => {
                         : "text-slate-600 hover:text-slate-900"
                     }`}
                   >
-                    👨‍🎓 Student
+                    Student
                   </button>
                   <button
                     type="button"
@@ -96,48 +96,38 @@ const Login = () => {
                         : "text-slate-600 hover:text-slate-900"
                     }`}
                   >
-                    👨‍🏫 Professor
+                    Professor
                   </button>
                 </div>
 
-                {/* Email field */}
+                {/* Email field (no icon) */}
                 <div className="space-y-2">
                   <label className="block text-sm font-semibold text-slate-700">
                     Email Address
                   </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                      📧
-                    </span>
-                    <input
-                      type="email"
-                      className="w-full pl-10 pr-4 py-3 border-2 border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm"
-                      onChange={(e) => setEmail(e.target.value)}
-                      value={email}
-                      placeholder="Enter your email"
-                      required
-                    />
-                  </div>
+                  <input
+                    type="email"
+                    className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm"
+                    onChange={(e) => setEmail(e.target.value)}
+                    value={email}
+                    placeholder="Enter your email"
+                    required
+                  />
                 </div>
 
-                {/* Password field */}
+                {/* Password field (no icon) */}
                 <div className="space-y-2">
                   <label className="block text-sm font-semibold text-slate-700">
                     Password
                   </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                      🔒
-                    </span>
-                    <input
-                      type="password"
-                      className="w-full pl-10 pr-4 py-3 border-2 border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm"
-                      onChange={(e) => setPassword(e.target.value)}
-                      value={password}
-                      placeholder="Enter your password"
-                      required
-                    />
-                  </div>
+                  <input
+                    type="password"
+                    className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm"
+                    onChange={(e) => setPassword(e.target.value)}
+                    value={password}
+                    placeholder="Enter your password"
+                    required
+                  />
                 </div>
 
                 {/* Submit button */}
