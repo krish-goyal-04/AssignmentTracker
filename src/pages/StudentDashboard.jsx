@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { motion as Motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAssignments } from "../hooks/useAssignments";
@@ -25,6 +25,14 @@ const StudentDashboard = () => {
   // Look up full student profile from storage
   const allStudents = getStudents();
   const currentStudent = allStudents.find((s) => s.id === studentId) || null;
+
+  // Redirect to login if user is missing (prevents 404 on refresh)
+  useEffect(() => {
+    const loggedInUser = localStorage.getItem("loggedInUser");
+    if (!loggedInUser) {
+      navigate("/", { replace: true });
+    }
+  }, [navigate]);
 
   // Calculate completion stats
   const totalAssignments = assignments.length;

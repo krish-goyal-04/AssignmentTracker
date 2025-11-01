@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { AnimatePresence, motion as Motion } from "framer-motion";
 import { AppContext } from "../context/AppContext";
 import { useParams, useNavigate } from "react-router-dom";
@@ -38,6 +38,13 @@ export default function ProfessorDashboard() {
   // Get professor ID from URL
   const { professorId } = useParams();
   const navigate = useNavigate();
+
+  // Redirect to login if user is missing (prevents 404 on refresh)
+  useEffect(() => {
+    if (!user) {
+      navigate("/", { replace: true });
+    }
+  }, [user, navigate]);
   // Prefer name from storage by professorId; fallback to context user.name/email
   const storedProf = (getProfessors?.() || []).find(
     (p) => p.id === professorId
