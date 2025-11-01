@@ -61,6 +61,13 @@ export const StudentAssignmentCard = ({
           <div className="p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
+                {/* Professor name moved to the top and emphasized */}
+                <div className="mb-1 text-xs sm:text-[13px] text-slate-500">
+                  <span className=" tracking-wide">Professor:</span>{" "}
+                  <span className="font-semibold text-slate-800">
+                    {assignment.professorName || "—"}
+                  </span>
+                </div>
                 <h3 className="text-lg font-bold text-slate-800 mb-2 sm:mb-3">
                   {assignment.title}
                 </h3>
@@ -78,7 +85,8 @@ export const StudentAssignmentCard = ({
                     submittedDate={submittedDate}
                   />
                   <span className="text-slate-400 text-xs">•</span>
-                  <span className="text-xs text-slate-600">
+                  <span className="text-xs text-slate-700 bg-slate-100 rounded-md px-2 py-1">
+                    Due:{" "}
                     {new Date(assignment.dueDate).toLocaleDateString("en-GB", {
                       day: "numeric",
                       month: "short",
@@ -107,17 +115,25 @@ export const StudentAssignmentCard = ({
               </p>
             )}
 
-            <div className="mt-5 flex flex-wrap items-center gap-3 text-sm">
+            {/* Actions row */}
+            <div className="mt-5 pt-4 border-t border-slate-200 flex flex-wrap items-center gap-3 text-sm">
               <a
                 href={assignment.driveTemplateLink}
                 target="_blank"
                 rel="noreferrer"
                 className="px-3 py-1.5 rounded-md border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-colors text-xs font-medium"
               >
-                Open Template
+                📂 Open Template
               </a>
-              <span className="text-slate-400">•</span>
-              <span className="text-slate-500">{assignment.professorName}</span>
+              {isSubmitted && submittedDate && (
+                <span className="text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-md">
+                  Submitted on{" "}
+                  {new Date(submittedDate).toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "short",
+                  })}
+                </span>
+              )}
             </div>
           </div>
         </Card>

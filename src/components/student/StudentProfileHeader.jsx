@@ -47,14 +47,6 @@ export const StudentProfileHeader = ({ student, totals }) => {
             >
               {displayName}
             </Motion.div>
-            <Motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="text-sm text-slate-500 truncate mt-1"
-            >
-              {student?.email}
-            </Motion.div>
           </div>
 
           {/* Stats grid: Total, Completed, Pending */}

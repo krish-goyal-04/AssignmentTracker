@@ -2,16 +2,6 @@ import React from "react";
 import { motion as Motion } from "framer-motion";
 import { Button } from "../ui/button";
 
-/**
- * AppHeader - shared navigation bar for both Student and Professor dashboards
- * Props:
- * - title: string (e.g. "Assignment Tracker")
- * - subtitle: string (e.g. "Student Portal" or "Professor Portal")
- * - userName: string (student/professor name)
- * - userId: string (studentId/professorId)
- * - onLogout: function
- * - icon: ReactNode (optional, for logo/avatar)
- */
 const AppHeader = ({ title, subtitle, userName, userId, onLogout, icon }) => {
   return (
     <Motion.nav
@@ -41,7 +31,7 @@ const AppHeader = ({ title, subtitle, userName, userId, onLogout, icon }) => {
             <span className="text-xs text-slate-500">{userId}</span>
           </div>
           <Button
-            variant="outline"
+            variant="destructive"
             onClick={onLogout}
             className="hidden sm:inline-flex"
           >
