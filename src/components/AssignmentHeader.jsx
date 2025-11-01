@@ -3,13 +3,13 @@ import { Button } from "./ui/button";
 import { PlusIcon } from "@heroicons/react/24/solid";
 
 const AssignmentHeader = ({
-  q,
-  setQ,
+  query,
+  setQuery,
   filter,
   setFilter,
   sortBy,
   setSortBy,
-  openCreate,
+  onCreateNew,
 }) => {
   return (
     <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
@@ -18,7 +18,7 @@ const AssignmentHeader = ({
           Professor Dashboard
         </h1>
         <p className="text-sm text-slate-500 mt-1">
-          Manage assignments, review submissions and export reports.
+          Manage assignments and review submissions.
         </p>
       </div>
 
@@ -26,13 +26,13 @@ const AssignmentHeader = ({
         <div className="hidden sm:flex items-center gap-2 bg-white border rounded-md px-3 py-2">
           <input
             placeholder="Search assignments..."
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
             className="text-sm outline-none w-64"
           />
           <button
             className="text-slate-500"
-            onClick={() => setQ("")}
+            onClick={() => setQuery("")}
             aria-label="clear search"
           >
             ✕
@@ -61,7 +61,7 @@ const AssignmentHeader = ({
             <option value="completionDesc">Completion % ↓</option>
           </select>
 
-          <Button className="flex items-center gap-2" onClick={openCreate}>
+          <Button className="flex items-center gap-2" onClick={onCreateNew}>
             <PlusIcon className="w-4 h-4" /> New
           </Button>
         </div>
