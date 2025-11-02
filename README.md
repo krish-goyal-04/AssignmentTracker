@@ -2,7 +2,7 @@
 
 Clean, responsive, role‑based assignment management dashboard built with React, Vite, and Tailwind CSS. Students can view and submit assignments via a double‑verification flow; Professors can create/manage assignments, attach Drive links, and track per‑student progress.
 
-• Live Demo (Vercel): <assignment-tracker-psi.vercel.app>
+• Live Demo (Vercel): assignment-tracker-psi.vercel.app
 
 ## Features
 
